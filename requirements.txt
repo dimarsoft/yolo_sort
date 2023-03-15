@@ -4,3 +4,4 @@ numba>=0.38.1
 scikit-image>=0.14.0
 scikit-learn
 ultralytics
+opencv-python

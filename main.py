@@ -2,20 +2,54 @@ from ultralytics import YOLO
 from sort import *
 import argparse
 from pathlib import Path
+import cv2
 
 
 def run_video(video_in, model, output_folder):
     video_in = Path(video_in)
     txt_file = Path(output_folder) / f"{video_in.stem}.txt"
 
-    print(txt_file)
-    predict = model.predict(source=video_in)
+    input_video = cv2.VideoCapture(str(video_in))
+
+    fps = int(input_video.get(cv2.CAP_PROP_FPS))
+    # ширина
+    w = int(input_video.get(cv2.CAP_PROP_FRAME_WIDTH))
+    # высота
+    h = int(input_video.get(cv2.CAP_PROP_FRAME_HEIGHT))
+
+    # количество кадров в видео
+    frames_in_video = int(input_video.get(cv2.CAP_PROP_FRAME_COUNT))
 
     tracker = Sort()
 
-    for x in predict:
-        track_bbs_ids = tracker.update(x)
-        print(track_bbs_ids)
+    # считываем все фреймы из видео
+    for frame_id in range(frames_in_video):
+        ret, frame_image = input_video.read()
+
+        if frame_id < 61:
+            continue
+        predict_frame = model.predict(source=frame_image)
+
+        result = predict_frame[0]
+
+        print(f"{frame_id} = {len(predict_frame)}")
+
+        #xyxy = boxes.xyxy.numpy()[0]
+        det = result.boxes.cpu().numpy()
+        if len(det) > 0:
+            #d = det.boxes[0, :]
+            #print(d)
+            track_bbs_ids = tracker.update(det.boxes)
+            print(track_bbs_ids)
+
+        # for box in result.boxes:
+          #  xyxy = box.xyxy.numpy()
+           # track_bbs_ids = tracker.update(xyxy)
+            # print(track_bbs_ids)
+
+        # dets - a numpy array of detections in the format[[x1, y1, x2, y2, score], [x1, y1, x2, y2, score], ...]
+
+    input_video.release()
 
 
 def run(video_in, model_path, output_folder):
