@@ -36,8 +36,14 @@ def run_video(video_in, model, output_folder):
 
         det = result.boxes.cpu().numpy()
 
+        # np.concatenate(ret)
+
         track_bbs_ids = tracker.update(det.boxes)
+        # ответ (track_bbs_ids) содержит bb, track_id, conf, cls
         print(track_bbs_ids)
+        print(det.cls)
+        print(det.conf)
+        print(det.boxes)
 
     input_video.release()
 
@@ -71,7 +77,7 @@ def main(run_params):
 
 def run_example():
     model = "D:\\AI\\2023\\models\\Yolo8s_batch32_epoch100.pt"
-    src_video_path = "d:\\AI\\2023\\corridors\\dataset-v1.1\\test\\"
+    src_video_path = "d:\\AI\\2023\\corridors\\dataset-v1.1\\test\\1.mp4"
     output_video_path = "D:\\AI\\2023\\Track\\Sort\\"
     labels_path = "D:\\AI\\2023\\Track"
 
