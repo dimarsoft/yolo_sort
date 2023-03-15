@@ -23,8 +23,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from skimage import io
-from sklearn.utils.linear_assignment_ import linear_assignment
-#from scipy.optimize import linear_sum_assignment as linear_assignment
 import glob
 import time
 import argparse
@@ -140,13 +138,30 @@ class KalmanBoxTracker(object):
         return convert_x_to_bbox(self.kf.x)
 
 
+def linear_assignment_(cost_matrix):
+    try:
+        import lap
+        _, x, y = lap.lapjv(cost_matrix, extend_cost=True)
+        return np.array([[y[i], i] for i in x if i >= 0])  #
+    except ImportError:
+        from scipy.optimize import linear_sum_assignment
+        x, y = linear_sum_assignment(cost_matrix)
+        return np.array(list(zip(x, y)))
+
+
+def linear_assignment(cost_matrix):
+    from scipy.optimize import linear_sum_assignment
+    x, y = linear_sum_assignment(cost_matrix)
+    return np.array(list(zip(x, y)))
+
+
 def associate_detections_to_trackers(detections, trackers, iou_threshold=0.3):
     """
   Assigns detections to tracked object (both represented as bounding boxes)
 
   Returns 3 lists of matches, unmatched_detections and unmatched_trackers
   """
-    if (len(trackers) == 0):
+    if len(trackers) == 0:
         return np.empty((0, 2), dtype=int), np.arange(len(detections)), np.empty((0, 5), dtype=int)
     iou_matrix = np.zeros((len(detections), len(trackers)), dtype=np.float32)
 

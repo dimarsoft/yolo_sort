@@ -34,20 +34,10 @@ def run_video(video_in, model, output_folder):
 
         print(f"{frame_id} = {len(predict_frame)}")
 
-        #xyxy = boxes.xyxy.numpy()[0]
         det = result.boxes.cpu().numpy()
-        if len(det) > 0:
-            #d = det.boxes[0, :]
-            #print(d)
-            track_bbs_ids = tracker.update(det.boxes)
-            print(track_bbs_ids)
 
-        # for box in result.boxes:
-          #  xyxy = box.xyxy.numpy()
-           # track_bbs_ids = tracker.update(xyxy)
-            # print(track_bbs_ids)
-
-        # dets - a numpy array of detections in the format[[x1, y1, x2, y2, score], [x1, y1, x2, y2, score], ...]
+        track_bbs_ids = tracker.update(det.boxes)
+        print(track_bbs_ids)
 
     input_video.release()
 
